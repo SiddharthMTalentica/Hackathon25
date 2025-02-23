@@ -23,9 +23,7 @@ Zivana is an AI-powered assistant designed to automate email management, schedul
 - **Google Calendar API** (Event Scheduling)
 - **Gmail API** (Email Management)
 - **SerpAPI, Wikipedia API** (Web Search)
-- **Airtable API** (Contacts Management)
 
 ### Data Storage
-- **Airtable** (Contacts Database)
 - **Google Calendar** (Event Data)
 - **Local Memory Buffer** (Short-Term Context)
