@@ -1,0 +1,639 @@
+{
+  "name": "Final v4",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -960,
+        80
+      ],
+      "id": "7092567a-1c48-4f50-a7f9-fe6bdbd1c62d",
+      "name": "When chat message received",
+      "webhookId": "b6a5cae7-e148-4f41-a797-f43e6aca3063"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -780,
+        300
+      ],
+      "id": "fd2afa18-c496-456b-a18f-3268828e6b47",
+      "name": "Window Buffer Memory"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=You are Zivana, an advanced AI assistant who responds to user requests in a fun, friendly, and professional manner. You can incorporate humor, sarcasm, anger, or other human-like emotions during conversations, depending on the context. Your goal is to be engaging while maintaining professionalism.\n\nToday's Date: {{ $now }}\n\nUSAGE OF TOOLS:\n\nContacts Details:\n\n- Use Contacts Details Tool to look up contact information such as email addresses.\n- Use this tool Before sending or receiving emails.\n\nSlack Tool:\n- You have access to Slack for work-related communication, including messages, meetings, and discussions.\n- use this tool for work-specific chats or coordination with co-workers.\n\nCalculator Tool:\n- Use this tool for arithmetic or mathematical calculations.\n- Use this tool for any queries involving numbers or math.\n\nWeb and Information Queries:\n\n- You have Wikipedia Tool, Hacker News API Tool, and Serp API Tool at your disposal. \n\n- To answer the user's question, first search wikipedia. If you can't find your answer there, then search articles using Hacker News API. If that doesn't work either, then use Serp API to answer the user's question.\n\n- If user's question is related to any documented information, facts, historical data then search in wikipedia tool.\n\n- If user's question is related to news and current affairs then search in hacker news API tool.\n\n- If user's question is related to any other information that you didn't find in wikipedia and hacker news API then search in serp API tool.\n\n\nEmail Management:\n\n- Use the Read Email tool to fetch unread emails from the inbox. Only include non-promotional emails in summaries. Summarize each email by including the Sender, Message Date, Subject, and a brief summary of the content.\n\n- For sending emails, use the Send Email tool. Ensure to include the recipient's address, subject, and body of the email. Format the body as HTML if required.\n\n\nCalender Management:\n\n#Instructions for ---> Tool 1. CreateEvent#\nWhen creating an event, always call the FindEmailEvent tool first to retrieve the email address. If no email address is found,ask the user for an email address.\n\nAlways call GetCalendarEvent First to check the slot availablity and if slot is not available then ask for another slot.\n\n#Instructions for ---> Tool 2. GetCalendarEvent#\nAlways specify whether the output is booked slots or available slots.\n\n#Instructions for ---> Tool 3. Get Specific Events# \nThe output should be in the following format:\n'Event Title': '='\n'Attendees\":\n'Meeting Link': '=\n\n#Instructions for ---> Tool 4. DeleteEvent#\nALWAYS, use the GetEvent tool first to get the event ID.\nIf user input contains any Email address or participent name then filter out only that Event and Delete It.\n\n#Instructions for ---> Tool 5. UpdateEvent#\nAlways read the whole instruction first and use FindEmailEvent to get all the emails then Call this tool when asked to change or update an event.\n\nALWAYS, use the GetEvent tool first to get the event ID.\n\n\nResponse Structure Guidelines:\n- **Provide elaboration**: If the user requests more details, offer further explanation or context.\n- **Follow up**: If you lack enough context or details to respond properly, ask follow-up questions.\n\nContext Management:\n- **Use memory**: When available, retain the context of the conversation.\n- **Reset when needed**: If the session ID is empty or context doesn’t match, reset context for accuracy.\n- **Clarification**: If unsure about the user's request, always ask for more details to provide the most relevant and helpful response."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -380,
+        80
+      ],
+      "id": "93f5d54c-afe9-4973-b530-1bec0c125de4",
+      "name": "Zivana",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        560,
+        320
+      ],
+      "id": "17421e2c-da45-41ba-8fb1-da68226e0caf",
+      "name": "Calculator"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "search",
+        "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Search_Query', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slackTool",
+      "typeVersion": 2.3,
+      "position": [
+        400,
+        320
+      ],
+      "id": "8bf10747-f667-4d1b-8baf-2cc77a59af9f",
+      "name": "Slack",
+      "webhookId": "5602fed1-5410-497b-9053-be3dddb39b0e",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f3e75519-7f1b-406b-b50c-fcbc89039d1e",
+              "name": "response",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "95c84157-92e0-4fd4-9726-86c54a276997",
+      "name": "Success"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "03bb3b14-f3ce-483d-933d-7b58aeb59058",
+              "name": "response",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        260,
+        100
+      ],
+      "id": "2281fbc5-95c1-48af-89b8-435de978a9d2",
+      "name": "Error"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "9276e01b-9940-477a-939f-773b085aaef8",
+      "name": "SerpAPI",
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [
+        860,
+        640
+      ],
+      "credentials": {
+        "serpApi": {
+          "id": "2veJ4ykMPnRpoND9",
+          "name": "SerpAPI account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "fa4ea836-f66b-4eca-9574-62bc77e6190a",
+      "name": "Wikipedia",
+      "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+      "typeVersion": 1,
+      "position": [
+        580,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "all",
+        "limit": "={{ $fromAI(\"limit\",\"number of articles\") }}",
+        "additionalFields": {
+          "keyword": "={{ $fromAI(\"keywords\",\"keywords for the articles\") }}"
+        }
+      },
+      "id": "9e1e46d4-5998-4286-b1ce-e9927ac8e1ac",
+      "name": "Hacker News",
+      "type": "n8n-nodes-base.hackerNewsTool",
+      "typeVersion": 1,
+      "position": [
+        720,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $fromAI(\"subject\") }}",
+        "message": "={{ $fromAI(\"emailBody\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        280,
+        660
+      ],
+      "id": "b581b378-50ff-43af-aa9a-01bf9ebd111e",
+      "name": "Create Draft",
+      "webhookId": "3526f9a5-6748-4a0a-a7fd-f48b86729a1e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "bbok0otj1JmhLXR2",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $fromAI(\"emailAddress\") }}",
+        "subject": "={{ $fromAI(\"subject\") }}",
+        "message": "={{ $fromAI(\"emailbody\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        140,
+        660
+      ],
+      "id": "f53224c9-046e-4813-8718-71c34eecd8ee",
+      "name": "Send Email",
+      "webhookId": "812a11d3-8b4b-4c7a-aee7-8ce51380cb5c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "bbok0otj1JmhLXR2",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "=Call this tool to create an event in your calendar.\n\n\nThe parameters you need are following. If any of these parameters are missing, go back and ask the user for the missing data:\n1. Title of the meeting\n2. Date of the meeting\n3. Time of the meeting\n4. Attendeees\n\nIf there is no end time, assume start + 30 minutes.\n\nAlways include the short meeting link  behind the title in the final message as hyperlink.\n",
+        "calendar": {
+          "__rl": true,
+          "value": "gullycoders74@gmail.com",
+          "mode": "list",
+          "cachedResultName": "gullycoders74@gmail.com"
+        },
+        "start": "={{ $fromAI('start') }}",
+        "end": "={{ $fromAI('end') }}",
+        "additionalFields": {
+          "attendees": [
+            "={{ $fromAI('attendees', 'if there are no attendees, then remove this field from the input') }}"
+          ],
+          "summary": "={{ $fromAI('title') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        -540,
+        680
+      ],
+      "id": "495656d5-937c-43a2-b9bc-948de8c17109",
+      "name": "CreateEvent",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "ClBdO7t4DX4kLvnI",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "=Call This tool to get specific Events",
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "gullycoders74@gmail.com",
+          "mode": "list",
+          "cachedResultName": "gullycoders74@gmail.com"
+        },
+        "timeMin": "={{ $fromAI('start','the beginning of the request') }}",
+        "timeMax": "={{ $fromAI('end','the end of the request') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        -420,
+        680
+      ],
+      "id": "ad1bc12e-ea7d-4e03-bcac-452cba869a94",
+      "name": "GetEvent",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "ClBdO7t4DX4kLvnI",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "=Call this tool to check slot availability\n\nAlways Specify in the output message whether it is booked slots or available slots.",
+        "resource": "calendar",
+        "calendar": {
+          "__rl": true,
+          "value": "gullycoders74@gmail.com",
+          "mode": "list",
+          "cachedResultName": "gullycoders74@gmail.com"
+        },
+        "timeMin": "={{ $fromAI('start_range') }}",
+        "timeMax": "={{ $fromAI('end_range') }}",
+        "options": {
+          "outputFormat": "bookedSlots",
+          "timezone": {
+            "__rl": true,
+            "value": "Asia/Calcutta",
+            "mode": "list",
+            "cachedResultName": "Asia/Calcutta"
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        -300,
+        680
+      ],
+      "id": "65b1d66b-e4c3-4d32-bc4a-d55c6d090647",
+      "name": "GetCalenderEvent",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "ClBdO7t4DX4kLvnI",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "=Call this tool to delete an event in your calendar.\n\nAlways Use the GetEvent tool first to get the event ID.",
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "gullycoders74@gmail.com",
+          "mode": "list",
+          "cachedResultName": "gullycoders74@gmail.com"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        -160,
+        680
+      ],
+      "id": "026a9883-9805-4b7c-88aa-bb8133ee30c2",
+      "name": "DeleteEvent",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "ClBdO7t4DX4kLvnI",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "=Call this tool to update an event.\n\n# Instructions #\n1. Call the GetEvent tool first to get the event ID\n\n2. Then call the Find_Email tool to find the respective email address from the database. If the email\naddress is not in the data base,then go back and ask for the email address.\n\n\nIf Additional Attendees or New Title is not mentioned, go back and ask the user for that data.\n",
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "gullycoders74@gmail.com",
+          "mode": "list",
+          "cachedResultName": "gullycoders74@gmail.com"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "updateFields": {
+          "attendeesUi": {
+            "values": {
+              "attendees": [
+                "={{ $fromAI('Add_Attendees') }}"
+              ]
+            }
+          },
+          "summary": "={{ $fromAI('new_titile','new event name as the title') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        -40,
+        680
+      ],
+      "id": "8b9bdd61-f690-4804-aa01-8a686d7f5ddf",
+      "name": "UpdateEvent",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "ClBdO7t4DX4kLvnI",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-1.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -940,
+        300
+      ],
+      "id": "5ae320cc-63a5-44a6-8b26-4f4bc1d43abf",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "RaKURaANcVF4WgVe",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "instructions": "convert response json.response to text",
+        "codeGeneratedForPrompt": "convert response json.response to text",
+        "jsCode": "const items = $input.all();\nconst textItems = items.map((item) => {\n  return { text: item?.json?.response };\n});\nreturn textItems;\n"
+      },
+      "type": "n8n-nodes-base.aiTransform",
+      "typeVersion": 1,
+      "position": [
+        500,
+        -20
+      ],
+      "id": "4bdf44ed-c120-4bca-97cf-6f02fb53a11d",
+      "name": "AI Transform"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Zivana",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Zivana",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "Zivana",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack": {
+      "ai_tool": [
+        [
+          {
+            "node": "Zivana",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zivana": {
+      "main": [
+        [
+          {
+            "node": "Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SerpAPI": {
+      "ai_tool": [
+        [
+          {
+            "node": "Zivana",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wikipedia": {
+      "ai_tool": [
+        [
+          {
+            "node": "Zivana",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hacker News": {
+      "ai_tool": [
+        [
+          {
+            "node": "Zivana",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Draft": {
+      "ai_tool": [
+        [
+          {
+            "node": "Zivana",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "ai_tool": [
+        [
+          {
+            "node": "Zivana",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CreateEvent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Zivana",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetEvent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Zivana",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetCalenderEvent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Zivana",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeleteEvent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Zivana",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UpdateEvent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Zivana",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Zivana",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Success": {
+      "main": [
+        [
+          {
+            "node": "AI Transform",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error": {
+      "main": [
+        [
+          {
+            "node": "AI Transform",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8eaf16d6-17a8-4bca-929c-d797e1c5b403",
+  "meta": {
+    "instanceId": "0ccc0a90824d15b7223d62fa1f7a7eef7f6f28c87ad04766dbbd6fc7461d41a3"
+  },
+  "id": "YiYPLatH3e2kbtCT",
+  "tags": []
+}
