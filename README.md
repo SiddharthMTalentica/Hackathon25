@@ -1,6 +1,6 @@
 ## Zivana – AI Assistant
 
-### Short Description
+### Description
 Zivana is an AI-powered assistant designed to automate email management, scheduling, web searches. It enhances productivity through seamless automation and intelligent task execution.
 
 ## Use Cases
